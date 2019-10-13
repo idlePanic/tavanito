@@ -20,3 +20,4 @@ use Illuminate\Http\Request;
 Route::resource('/post' , 'PostController');
 
 Route::resource('/categories' , 'CategoryController');
+Route::resource('/tags' , 'TagController');
