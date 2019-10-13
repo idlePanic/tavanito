@@ -4,20 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\PostRequest;
 use App\Models\Post;
+use App\Http\Resources\Post as PostResource;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 
 class PostController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return Post[]|Collection
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
     public function index()
     {
-        return Post::all();
+        return PostResource::collection(Post::all());
+//        return Post::all();
     }
 
     /**
@@ -38,8 +41,31 @@ class PostController extends Controller
      */
     public function store(PostRequest $request)
     {
-        $post = Post::create($request->all());
-        return response()->json($post, 201);
+        $success = false;
+
+        DB::beginTransaction();
+        try {
+            $post = Post::create($request->all());
+            if (isset($request->tag_ids)){
+                foreach ($request->tag_ids as $tagId) {
+                    $post->tags()->attach($tagId);
+                }
+            }
+
+
+            $success = true;
+        }
+        catch (\Exception $e){
+            dd($e);
+        }
+        if ($success) {
+            DB::commit();
+            return response()->json($post, 201);
+        } else {
+            DB::rollback();
+            return response()->json("error", 402);
+        }
+
     }
 
     /**
@@ -50,7 +76,8 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        return $post;
+        return new PostResource($post);
+//        return $post;
     }
 
     /**
@@ -74,6 +101,13 @@ class PostController extends Controller
     public function update(Request $request, Post $post)
     {
         $post->update($request->all());
+        DB::table('post_tag')->where('post_id' , '=' , $post->id)->delete();
+
+        if (isset($request->tag_ids)){
+            foreach ($request->tag_ids as $tagId) {
+                $post->tags()->attach($tagId);
+            }
+        }
 
         return response()->json($post, 200);
     }
