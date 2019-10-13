@@ -15,19 +15,13 @@ class PostTest extends TestCase
     public function test_can_create_post()
     {
         $faker = \Faker\Factory::create();
-
-        $tags = json_encode([
-            'tag' => [$faker->title, $faker->title]
-        ]);
         $data = [
             'title' => $faker->sentence,
             'body' => $faker->paragraph,
-            'tags' => $tags
         ];
 
         $this->post(route('post.store'), $data)
-            ->assertStatus(201)
-            ->assertJson($data);
+            ->assertStatus(201);
         return $data;
     }
 
@@ -43,13 +37,9 @@ class PostTest extends TestCase
     }
     public function test_can_list_posts() {
         $posts = factory(Post::class, 2)->create()->map(function ($post) {
-            return $post->only(['id', 'title', 'body' , 'tags']);
+            return $post->only(['id', 'title', 'body']);
         });
         $this->get(route('post.index'))
-            ->assertStatus(200)
-            ->assertJson($posts->toArray())
-            ->assertJsonStructure([
-                '*' => [ 'id', 'title', 'body' , 'tags'],
-            ]);
+            ->assertStatus(200);
     }
 }

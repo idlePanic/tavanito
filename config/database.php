@@ -35,12 +35,6 @@ return [
 
     'connections' => [
 
-        'testing' => [
-            'driver' => 'mysql',
-            'database' => 'tavanito',
-            'prefix' => '',
-        ],
-
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DATABASE_URL'),
