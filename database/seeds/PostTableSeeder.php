@@ -33,12 +33,11 @@ class PostTableSeeder extends Seeder
 
         for ($i = 0; $i < 5; $i++) {
 
-            $data = json_encode(['tag' => [$faker->title, $faker->title]]);
 
             Post::create([
                 'title' => $faker->sentence,
                 'body' => $faker->paragraph,
-                'tags' => $data
+
             ]);
         }
 
